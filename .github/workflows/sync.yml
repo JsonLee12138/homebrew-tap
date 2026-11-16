@@ -1,0 +1,63 @@
+name: Sync Homebrew Casks
+
+on:
+  schedule:
+    # Sync every 6 hours from upstream public GitHub Releases
+    - cron: "17 */6 * * *"
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Optional upstream tag to sync (defaults to latest release)"
+        required: false
+
+permissions:
+  contents: read
+
+jobs:
+  sync:
+    name: Sync Casks from Upstream Releases
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Download ruum.rb from JsonLee12138/Ruum release
+        id: fetch
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ inputs.tag }}
+        run: |
+          args=(--repo JsonLee12138/Ruum --pattern "ruum.rb" --dir "$RUNNER_TEMP/cask" --clobber)
+          mkdir -p "$RUNNER_TEMP/cask"
+          if [ -n "$TAG" ]; then
+            if ! gh release download "$TAG" "${args[@]}"; then
+              echo "Release $TAG or ruum.rb asset not found yet; skipping."
+              echo "found=false" >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+          else
+            if ! gh release download "${args[@]}"; then
+              echo "No published release with ruum.rb asset found yet; skipping."
+              echo "found=false" >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+          fi
+          ruby -c "$RUNNER_TEMP/cask/ruum.rb"
+          echo "found=true" >> "$GITHUB_OUTPUT"
+
+      - name: Update Casks/ruum.rb
+        if: steps.fetch.outputs.found == 'true'
+        run: |
+          mkdir -p Casks
+          cp "$RUNNER_TEMP/cask/ruum.rb" Casks/ruum.rb
+          git add Casks/ruum.rb
+          if git diff --staged --quiet; then
+            echo "Casks/ruum.rb is already up to date."
+          else
+            git config user.name "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+            version=$(sed -n 's/^[[:space:]]*version "\(.*\)"/\1/p' Casks/ruum.rb | head -1)
+            git commit -m "chore(ruum): update cask to ${version:-latest}"
+            git push
+          fi
