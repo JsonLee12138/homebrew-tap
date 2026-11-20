@@ -1,19 +1,21 @@
 cask "ruum" do
   arch arm: "aarch64", intel: "x86_64"
 
-  version "0.2.2"
+  version "0.2.3"
 
   on_arm do
-    sha256 "75a98417a2f6e89cfa106a27b1c44761fd61d064ed2b3235063f36564b712308"
+    sha256 "8578a020d2c466df3a90e48cf333af74463a77e87c3b6561a17e9489201e783f"
   end
   on_intel do
-    sha256 "4671ab768c53367fd6da87a0d1f4ee63562af3d6042a8ddc4fc50bfe5964f352"
+    sha256 "a94327833bf09857bcd9a43401c86104d1a779a4a54e3b1ea3fd5150ca02cf52"
   end
 
   url "https://github.com/JsonLee12138/Ruum/releases/download/v#{version}/ruum-#{version}-#{arch}-macos.dmg"
   name "ruum"
   desc "GPUI treemap explorer for disk usage"
   homepage "https://github.com/JsonLee12138/Ruum"
+
+  auto_updates true
 
   livecheck do
     url :url
