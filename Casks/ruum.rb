@@ -1,13 +1,13 @@
 cask "ruum" do
   arch arm: "aarch64", intel: "x86_64"
 
-  version "0.2.4"
+  version "0.2.5"
 
   on_arm do
-    sha256 "2bfaf25c436d3730b73b516c054265c7aa199fab6cfc00a1ed08e1a8cedb28b4"
+    sha256 "1b6c88707bd6727c68599909276effda33ef40c785af53cf765b72c08bed1001"
   end
   on_intel do
-    sha256 "745ea20fb02a6b8f13049af42ac556c4b356e8b596d5980b24560caf40a0bb5e"
+    sha256 "b923d98a02941386242fa31e6ddd92cd2c6217d3628b2ff25e0ec7a27b34e3af"
   end
 
   url "https://github.com/JsonLee12138/Ruum/releases/download/v#{version}/ruum-#{version}-#{arch}-macos.dmg"
